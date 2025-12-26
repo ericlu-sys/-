@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WPORT 內部資源門戶</title>
+<link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/common.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="p-6 md:p-12">
+<div class="max-w-6xl mx-auto">
+  <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+    <div class="flex flex-col items-center md:items-start w-full md:w-auto">
+      <img src="/static/logo.svg" alt="wport logo" class="h-12 mb-4">
+      <h1 class="text-xl font-medium text-slate-500 tracking-widest uppercase">內部資源門戶</h1>
+    </div>
+    <div class="relative w-full md:w-80">
+      <input type="text" id="searchInput" placeholder="搜尋關鍵字..." 
+             class="w-full pl-11 pr-4 py-3 rounded-2xl border-none bg-white shadow-sm focus:ring-2 focus:ring-[#56C7BB] outline-none transition-all text-slate-600">
+      <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-slate-300"></i>
+    </div>
+  </div>
+
+  <div id="filterTags" class="mb-10 flex flex-wrap gap-3 justify-center md:justify-start"></div>
+
+  <div id="linksContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+
+  <div id="emptyState" class="hidden py-32 text-center">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-100 mb-6">
+          <i class="fa-solid fa-search text-3xl text-slate-300"></i>
+      </div>
+      <p class="text-slate-400 text-lg font-light">找不到符合的資源連結...</p>
+  </div>
+</div>
+
+<script>
+  const linkData = JSON.parse('%%SAFE_JSON%%');
+</script>
+<script type="module" src="/static/portal.js"></script>
+</body>
+</html>
