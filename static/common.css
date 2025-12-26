@@ -1,0 +1,29 @@
+/* common.css */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+:root {
+    --primary-color: #56C7BB;
+    --primary-color-dark: #45a89d;
+    --bg-color: #f8fafc;
+}
+
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: var(--bg-color);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 1rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s;
+}
+.btn-primary:hover {
+    background-color: var(--primary-color-dark);
+}
+
+.card {
+    border-radius: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
