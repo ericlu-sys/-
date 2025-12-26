@@ -1,26 +1,65 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WPORT Email 簽名產生器</title>
-<link rel="icon" href="/static/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/static/common.css">
-<script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>wport 簽名檔產生器</title>
+  <link rel="stylesheet" href="/static/common.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="p-6 md:p-12">
-<div class="max-w-6xl mx-auto">
-  <div class="flex flex-col items-center mb-6">
-    <img src="/static/logo.svg" alt="wport logo" class="h-12 mb-4">
-    <h1 class="text-xl font-medium text-slate-500 tracking-widest uppercase">Email 簽名產生器</h1>
+  <div class="max-w-6xl mx-auto">
+    <div class="flex flex-col items-center md:items-start mb-12">
+      <img src="https://cdn.wport.me/static/mediazone/images/816d4514-4692-41bc-b146-cec5115716a8.svg" 
+           alt="wport logo" class="h-12 mb-4">
+      <h1 class="text-xl font-medium text-slate-500 tracking-widest uppercase">內部資源門戶 - 簽名檔產生器</h1>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+      <div class="w-full lg:w-96 space-y-6">
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+          <label class="block text-sm font-bold text-slate-700 mb-4">選擇同仁姓名</label>
+          <select id="userSelect" class="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50 text-slate-600 focus:ring-2 focus:ring-[#56C7BB] outline-none mb-8">
+            <option>載入名單中...</option>
+          </select>
+          
+          <label class="block text-sm font-bold text-slate-700 mb-4">顯示內容調整</label>
+          <div class="space-y-4 mb-8">
+            <label class="flex items-center gap-4 cursor-pointer group">
+              <input type="checkbox" id="showCompanyTel" checked class="w-5 h-5 rounded border-slate-300 text-[#56C7BB]">
+              <span class="text-slate-600 group-hover:text-[#56C7BB] transition-colors">顯示公司電話 (03)-370-2101</span>
+            </label>
+            <label class="flex items-center gap-4 cursor-pointer group">
+              <input type="checkbox" id="showMobile" checked class="w-5 h-5 rounded border-slate-300 text-[#56C7BB]">
+              <span class="text-slate-600 group-hover:text-[#56C7BB] transition-colors">顯示個人手機號碼</span>
+            </label>
+          </div>
+          
+          <button id="copyBtn" class="tag-btn active w-full py-4 rounded-2xl font-bold text-lg">
+            <i class="fa-regular fa-copy mr-2"></i>一鍵複製簽名檔
+          </button>
+        </div>
+
+        <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-2xl">
+          <p class="text-sm text-amber-800 leading-relaxed">
+            <b>💡 使用小技巧：</b><br>
+            複製成功後，直接到 Gmail 的「設定 > 簽名檔」區域按下 <b>Ctrl+V</b> 貼上即可完整保留樣式。
+          </p>
+        </div>
+      </div>
+
+      <div class="flex-grow bg-white p-12 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-center min-h-[450px]">
+        <div id="sig-container" class="border-2 border-dashed border-slate-100 p-6 rounded-2xl relative">
+          <div id="loader" class="text-slate-300 text-center">
+            <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-2"></i>
+            <p>正在生成預覽...</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div id="signatureContainer"></div>
-</div>
-
-<script>
-  const signatureData = JSON.parse('%%SAFE_JSON%%');
-</script>
-<script type="module" src="/static/email-signature.js"></script>
+  <script type="module" src="./email-signature.js"></script>
 </body>
 </html>

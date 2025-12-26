@@ -1,104 +1,106 @@
-/* --- 基礎變數與重設 --- */
+/* 引入字體 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+/* --- 變數定義 --- */
 :root {
-    --primary-color: #56C7BB;
-    --bg-color: #F8FAFC;
-    --text-main: #1E293B;
-    --text-muted: #94A3B8;
-    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-    --card-hover-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
-  }
-  
-  * {
+    --wport-primary: #56C7BB;
+    --wport-primary-dark: #45a89d;
+    --wport-bg: #f8fafc;
+    --text-main: #1e293b;
+    --text-muted: #94a3b8;
+}
+
+/* --- 基礎設定 --- */
+* {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-  }
-  
-  body {
-    background-color: var(--bg-color);
-    font-family: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+}
+
+body { 
+    background-color: var(--wport-bg); 
+    font-family: 'Noto Sans TC', -apple-system, sans-serif; 
     color: var(--text-main);
     line-height: 1.6;
-    min-height: 100vh;
-  }
-  
-  /* --- 版面配置 --- */
-  .max-w-6xl {
-    max-width: 72rem;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  /* --- 搜尋框優化 --- */
-  #searchInput {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+}
+
+/* --- 自定義捲軸 (舊版細節) --- */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* --- 標籤按鈕 (Tag Buttons) --- */
+.tag-btn {
     transition: all 0.3s ease;
-  }
-  
-  #searchInput:focus {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    transform: translateY(-1px);
-  }
-  
-  /* --- 標籤按鈕樣式 --- */
-  .tag-btn {
     cursor: pointer;
-    border: 1px solid transparent;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .tag-btn:hover {
-    transform: translateY(-2px);
-  }
-  
-  .tag-btn.active {
-    background-color: var(--primary-color) !important;
-    color: white !important;
-    box-shadow: 0 10px 15px -3px rgba(86, 199, 187, 0.3);
-  }
-  
-  /* --- 卡片動畫與效果 --- */
-  #linksContainer a {
-    text-decoration: none;
+    border: 1px solid #e2e8f0;
+}
+
+.tag-btn:hover {
+    background-color: #f1f5f9;
+    transform: translateY(-1px);
+}
+
+.tag-btn.active { 
+    background-color: var(--wport-primary) !important; 
+    color: white !important; 
+    border-color: var(--wport-primary) !important;
+    box-shadow: 0 4px 12px -2px rgba(86, 199, 187, 0.4); 
+}
+
+/* --- 卡片樣式 (Link Cards) --- */
+.link-card { 
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .group:hover .group-hover\:bg-primary-light {
-    background-color: rgba(86, 199, 187, 0.1);
-  }
-  
-  /* 文字截斷（避免描述太長撐破卡片） */
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 舊版喜歡的懸浮效果：邊框變色 + 大陰影 */
+.link-card:hover {
+    border-color: var(--wport-primary) !important;
+    box-shadow: 0 20px 25px -5px rgba(86, 199, 187, 0.1), 0 10px 10px -5px rgba(86, 199, 187, 0.04);
+    transform: translateY(-4px);
+}
+
+/* --- 搜尋框優化 --- */
+#searchInput {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+#searchInput:focus {
+    box-shadow: 0 0 0 2px rgba(86, 199, 187, 0.2);
+    background-color: white;
+}
+
+/* --- 工具類別 --- */
+.truncate {
     overflow: hidden;
-  }
-  
-  /* --- 響應式調整 --- */
-  @media (max-width: 768px) {
-    .p-6 {
-      padding: 1.5rem;
-    }
-    
-    .md\:p-12 {
-      padding: 2rem 1rem;
-    }
-  }
-  
-  /* --- 載入中動畫 (可選) --- */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  #linksContainer > a {
-    animation: fadeIn 0.5s ease backwards;
-  }
-  
-  /* 讓卡片一個接一個出現 */
-  #linksContainer > a:nth-child(1) { animation-delay: 0.1s; }
-  #linksContainer > a:nth-child(2) { animation-delay: 0.15s; }
-  #linksContainer > a:nth-child(3) { animation-delay: 0.2s; }
-  #linksContainer > a:nth-child(4) { animation-delay: 0.25s; }
-  #linksContainer > a:nth-child(5) { animation-delay: 0.3s; }
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.max-w-6xl {
+    max-width: 72rem;
+    margin: 0 auto;
+}
+
+/* 響應式微調 */
+@media (max-width: 768px) {
+    .md\:p-12 { padding: 2rem 1rem; }
+}
+
+/* 補充在 common.css 末尾 */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.5em 1.5em;
+}
+
+input[type="checkbox"] {
+    accent-color: var(--wport-primary);
+}
