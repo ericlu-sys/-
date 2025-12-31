@@ -72,25 +72,25 @@ function render() {
         <tr>
           <td valign="top" style="padding-bottom: 10px;">
             <a href="https://wport.me" target="_blank">
-              <img src="https://cdn.wport.me/static/mediazone/images/816d4514-4692-41bc-b146-cec5115716a8.svg" alt="wport" width="160" style="display: block; border: 0;">
+              <img src="https://cdn.wport.me/static/mediazone/images/ecde4f0e-5113-4ff0-b4bb-6aacddbd56cd.jpg" alt="wport" width="160" style="display: block; border: 0;">
             </a>
           </td>
         </tr>
         <tr>
           <td valign="middle" style="padding: 10px 0;">
-            <img src="https://cdn.wport.me/static/mediazone/images/b1de9d75-4dac-484d-8d2a-bd385c5d7adc.svg" alt="職航站" width="160" style="display: block; margin-bottom: 6px; border: 0;">
-            <img src="https://cdn.wport.me/static/mediazone/images/05c0d90a-2fc6-42fa-ab70-15140ac62511.svg" alt="熱火數碼資訊" width="160" style="display: block; border: 0;">
+            <img src="https://cdn.wport.me/static/mediazone/images/dff654fd-9a13-4e94-b262-d9ea46a472e6.jpg" alt="職航站" width="160" style="display: block; margin-bottom: 6px; border: 0;">
+            <img src="https://cdn.wport.me/static/mediazone/images/05671818-9cd4-45c7-be3e-72617cb9ecfd.jpg" alt="熱火數碼資訊" width="160" style="display: block; border: 0;">
           </td>
         </tr>
         <tr>
           <td valign="bottom" style="padding-top: 10px;">
             <table cellpadding="0" cellspacing="0" border="0" width="160" style="width: 160px;">
               <tr>
-                <td align="left" width="32"><a href="https://www.facebook.com/profile.php?id=61559574624536" target="_blank"><img src="https://cdn.wport.me/static/mediazone/images/2d99beb5-bdce-4356-85d9-64abead2f925.svg" width="26" alt="FB_icon" style="display: block; border: 0;"></a></td>
-                <td align="center" width="32"><a href="https://www.instagram.com/eric_rookie_ceo/" target="_blank"><img src="https://cdn.wport.me/static/mediazone/images/95ae3007-ce61-4d66-a1ae-b283e42e47d1.svg" width="26" alt="IG_icon" style="display: block; border: 0;"></a></td>
-                <td align="center" width="32"><a href="https://www.tiktok.com/@wport.me" target="_blank"><img src="https://cdn.wport.me/static/mediazone/images/04af89be-2aa3-4c14-a08b-0f9d2eacaf42.svg" width="26" alt="Tiktok_icon" style="display: block; border: 0;"></a></td>
-                <td align="center" width="32"><a href="https://www.youtube.com/@wport-me" target="_blank"><img src="https://cdn.wport.me/static/mediazone/images/d02c9914-d271-4f2f-bf77-797a056d2c4b.svg" width="26" alt="Youtube_icon" style="display: block; border: 0;"></a></td>
-                <td align="right" width="32"><a href="https://www.linkedin.com/company/wport" target="_blank"><img src="https://cdn.wport.me/static/mediazone/images/9b6b0b03-a909-4e02-9612-d0ba9accafe7.svg" width="26" alt="Linkedin_icon" style="display: block; border: 0;"></a></td>
+                <td align="left" width="32"><a href="https://www.facebook.com/wportjobstation" target="_blank"><img src="https://cdn.wport.me/static/mediazone/images/9479489e-f34f-47ab-860a-afdeb74738f3.jpg" width="26" alt="FB_icon" style="display: block; border: 0;"></a></td>
+                <td align="center" width="32"><a href="https://www.instagram.com/wport.me/" target="_blank"><img src="https://cdn.wport.me/static/mediazone/images/de4bf454-62be-47df-a72c-bda39845433c.jpg" width="26" alt="IG_icon" style="display: block; border: 0;"></a></td>
+                <td align="center" width="32"><a href="https://www.tiktok.com/@wport.me" target="_blank"><img src="https://cdn.wport.me/static/mediazone/images/aa929f06-d3a3-45d7-8371-19769dad1bde.jpg" width="26" alt="Tiktok_icon" style="display: block; border: 0;"></a></td>
+                <td align="center" width="32"><a href="https://www.youtube.com/@wport-me" target="_blank"><img src="https://cdn.wport.me/static/mediazone/images/4511738a-6648-4e82-843c-9bb72aafc010.jpg" width="26" alt="Youtube_icon" style="display: block; border: 0;"></a></td>
+                <td align="right" width="32"><a href="https://www.linkedin.com/company/wport" target="_blank"><img src="https://cdn.wport.me/static/mediazone/images/4baad69e-9773-4965-9c00-7550a0587958.jpg" width="26" alt="Linkedin_icon" style="display: block; border: 0;"></a></td>
               </tr>
             </table>
           </td>
@@ -101,18 +101,29 @@ function render() {
     <td style="border-left: 1px solid #d1d1d1; padding: 0; width: 1px;">&nbsp;</td>
 
     <td valign="top" style="padding-left: 25px;">
-      <div style="margin-bottom: 12px;">
-        <div style="font-size: 24px; color: #44b2aa; font-weight: bold; letter-spacing: 2px; line-height: 1.2;">${nameCn} ${nameEn}</div>
-        <div style="font-size: 18px; color: #4d4d4d; font-weight: bold; line-height: 1.8;">${titleCn}${titleEn}</div>
-      </div>
-      
-      <div style="font-size: 14px; color: #4d4d4d; line-height: 1.8;">
-        ${telHtml}
-        ${mobileHtml}
-        E-mail: <a href="mailto:${email}" style="color: #4d4d4d; text-decoration: none;">${email}</a><br>
-        統一編號：89121689<br>
-        338 桃園市蘆竹區新興里文新街 7 號 5 樓
-      </div>
+      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+        <tr>
+          <td style="padding-bottom: 12px;">
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="font-size: 24px; color: #44b2aa; font-weight: bold; letter-spacing: 2px; line-height: 1.2;">${nameCn} ${nameEn}</td>
+              </tr>
+              <tr>
+                <td style="font-size: 18px; color: #4d4d4d; font-weight: bold; line-height: 1.8; padding-top: 4px;">${titleCn}${titleEn}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="font-size: 14px; color: #4d4d4d; line-height: 1.8;">
+            ${telHtml}
+            ${mobileHtml}
+            E-mail: <a href="mailto:${email}" style="color: #4d4d4d; text-decoration: none;">${email}</a><br>
+            統一編號：89121689<br>
+            338 桃園市蘆竹區新興里文新街 7 號 5 樓
+          </td>
+        </tr>
+      </table>
     </td>
   </tr>
 </table>`;
@@ -125,18 +136,76 @@ document.getElementById('userSelect')?.addEventListener('change', render);
 document.getElementById('showCompanyTel')?.addEventListener('change', render);
 document.getElementById('showMobile')?.addEventListener('change', render);
 
-document.getElementById('copyBtn')?.addEventListener('click', () => {
+document.getElementById('copyBtn')?.addEventListener('click', async () => {
   const container = document.getElementById('sig-container');
-  const range = document.createRange();
-  range.selectNode(container);
-  window.getSelection().removeAllRanges();
-  window.getSelection().addRange(range);
-  document.execCommand('copy');
   
-  const btn = document.getElementById('copyBtn');
-  const originalText = btn.innerHTML;
-  btn.innerHTML = '✅ 已複製！';
-  setTimeout(() => btn.innerHTML = originalText, 2000);
+  try {
+    // Create a temporary container to ensure clean HTML copy
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.innerHTML = container.innerHTML;
+    document.body.appendChild(tempDiv);
+    
+    // Method 1: Try modern Clipboard API
+    if (navigator.clipboard && navigator.clipboard.write) {
+      try {
+        const htmlContent = tempDiv.innerHTML;
+        const textContent = tempDiv.innerText || tempDiv.textContent;
+        
+        // Create a blob with HTML content
+        const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+        const textBlob = new Blob([textContent], { type: 'text/plain' });
+        
+        if (window.ClipboardItem) {
+          const clipboardItem = new ClipboardItem({
+            'text/html': htmlBlob,
+            'text/plain': textBlob
+          });
+          await navigator.clipboard.write([clipboardItem]);
+        } else {
+          // Fallback: copy as HTML using execCommand
+          const range = document.createRange();
+          range.selectNodeContents(tempDiv);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+          document.execCommand('copy');
+          selection.removeAllRanges();
+        }
+      } catch (clipboardError) {
+        // Fallback to execCommand
+        const range = document.createRange();
+        range.selectNodeContents(tempDiv);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        document.execCommand('copy');
+        selection.removeAllRanges();
+      }
+    } 
+    // Method 2: Fallback to execCommand
+    else {
+      const range = document.createRange();
+      range.selectNodeContents(tempDiv);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      document.execCommand('copy');
+      selection.removeAllRanges();
+    }
+    
+    // Clean up
+    document.body.removeChild(tempDiv);
+    
+    const btn = document.getElementById('copyBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '✅ 已複製！';
+    setTimeout(() => btn.innerHTML = originalText, 2000);
+  } catch (err) {
+    console.error('Copy failed:', err);
+    alert('複製失敗，請手動選取簽名檔內容並複製');
+  }
 });
 
 // 啟動
