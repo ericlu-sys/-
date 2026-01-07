@@ -34,12 +34,23 @@ async function init() {
     document.getElementById("noEvents").style.display = "block";
     document.getElementById("eventList").style.display = "none";
   }
+
+  // 5. 更新「最後更新時間」
+  updateLastUpdatedTime();
+}
+
+function updateLastUpdatedTime() {
+  const lastUpdatedEl = document.getElementById("lastUpdated");
+  if (lastUpdatedEl) {
+    const now = new Date();
+    lastUpdatedEl.innerText = `最後更新時間：${now.toLocaleString('zh-TW')}`;
+  }
 }
 
 function renderEvents(events) {
   const list = document.getElementById("eventList");
   const noEvents = document.getElementById("noEvents");
-  
+
   list.innerHTML = ""; // Clear existing list
 
   if (events.length === 0) {
@@ -71,7 +82,7 @@ function renderEvents(events) {
 
     const startDate = new Date(event.startTime);
     const endDate = new Date(event.endTime);
-    
+
     item.innerHTML = `
       <div class="flex flex-col gap-3">
         <h3 class="text-xl font-bold ${isToday ? 'text-white' : 'text-slate-800'}">${event.title}</h3>
@@ -87,7 +98,7 @@ function renderEvents(events) {
         </div>
       </div>
     `;
-    
+
     list.appendChild(item);
   });
 }
@@ -112,14 +123,14 @@ function applyFilterAndSort() {
       event.calendarName.toLowerCase().includes(lower)
     );
   }
-  
+
   // Then apply sort
   const sorted = [...filtered].sort((a, b) => {
     const dateA = new Date(a.startTime);
     const dateB = new Date(b.startTime);
     return currentSortOrder === "asc" ? dateA - dateB : dateB - dateA;
   });
-  
+
   renderEvents(sorted);
 }
 
@@ -147,3 +158,6 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+// 每 5 分鐘自動刷新一次資料
+setInterval(init, 5 * 60 * 1000);
