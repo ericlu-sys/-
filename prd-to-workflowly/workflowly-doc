@@ -1,0 +1,372 @@
+# WorkFlowy API 文件
+
+> 官方 API 參考文檔，便於人類與 AI 閱讀使用。
+
+---
+
+## 目錄
+
+1. [節點 (Nodes)](#節點-nodes)
+2. [目標 (Targets)](#目標-targets)
+
+---
+
+## 節點 (Nodes)
+
+**Node** 是 WorkFlowy 的基本內容單位。每個節點代表一個項目符號，可包含文字、子節點，並以階層方式組織。節點可展開/收合、完成、加標籤與移動。
+
+### API 端點總覽
+
+| 方法 | 路徑 | 說明 |
+|------|------|------|
+| POST | `/api/v1/nodes` | 建立節點 |
+| POST | `/api/v1/nodes/:id` | 更新節點 |
+| GET | `/api/v1/nodes/:id` | 取得單一節點 |
+| GET | `/api/v1/nodes` | 列出子節點 |
+| DELETE | `/api/v1/nodes/:id` | 刪除節點 |
+| POST | `/api/v1/nodes/:id/move` | 移動節點 |
+| POST | `/api/v1/nodes/:id/complete` | 標記為完成 |
+| POST | `/api/v1/nodes/:id/uncomplete` | 取消完成 |
+| GET | `/api/v1/nodes-export` | 匯出所有節點 |
+
+**Base URL:** `https://workflowy.com`
+
+**認證:** `Authorization: Bearer <YOUR_API_KEY>`
+
+---
+
+### Node 物件結構
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `id` | string | 節點唯一識別碼 |
+| `name` | string | 節點文字內容（支援格式化） |
+| `note` | string \| null | 備註內容（顯示於主文字下方） |
+| `priority` | number | 在同層節點中的排序，數值越小越前面 |
+| `data.layoutMode` | string | 顯示模式：`"bullets"`, `"todo"`, `"h1"`, `"h2"`, `"h3"` |
+| `createdAt` | number | 建立時間（Unix timestamp） |
+| `modifiedAt` | number | 最後修改時間（Unix timestamp） |
+| `completedAt` | number \| null | 完成時間（未完成則為 null） |
+
+**範例：**
+
+```json
+{
+  "id": "6ed4b9ca-256c-bf2e-bd70-d8754237b505",
+  "name": "This is a test outline for API examples",
+  "note": null,
+  "priority": 200,
+  "data": {
+    "layoutMode": "bullets"
+  },
+  "createdAt": 1753120779,
+  "modifiedAt": 1753120850,
+  "completedAt": null
+}
+```
+
+---
+
+### 建立節點
+
+**POST** `/api/v1/nodes`
+
+#### 參數
+
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| `parent_id` | string | 是 | 父節點 ID、target key（如 `"home"`, `"inbox"`）或 `"None"`（頂層） |
+| `name` | string | 是 | 節點文字（支援格式化） |
+| `note` | string | 否 | 備註內容 |
+| `layoutMode` | string | 否 | 顯示模式，預設 `"bullets"` |
+| `position` | string | 否 | 插入位置：`"top"`（預設）或 `"bottom"` |
+
+#### 範例：基本建立
+
+```bash
+curl -X POST https://workflowy.com/api/v1/nodes \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
+  -d '{
+    "parent_id": "inbox",
+    "name": "Hello API",
+    "position": "top"
+  }'
+```
+
+**回應：**
+
+```json
+{
+  "item_id": "5b401959-4740-4e1a-905a-62a961daa8c9"
+}
+```
+
+#### 範例：多層結構（第一行變父節點，其餘為子節點）
+
+```bash
+curl -X POST https://workflowy.com/api/v1/nodes \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
+  -d '{
+    "parent_id": "inbox",
+    "name": "# Project\n\n- [ ] Task one\n\n- [ ] Task two"
+  }'
+```
+
+---
+
+### 格式支援
+
+#### Layout Modes（Markdown 對照）
+
+| Markdown | layoutMode | 說明 |
+|----------|------------|------|
+| `# text` | `"h1"` | 一級標題 |
+| `## text` | `"h2"` | 二級標題 |
+| `### text` | `"h3"` | 三級標題 |
+| `#### text` | — | 粗體 |
+| `- text` | `"bullets"` | 項目符號 |
+| `- [ ] text` | `"todo"` | 未完成待辦 |
+| `- [x] text` | `"todo"` | 已完成待辦 |
+| `` ` ```code``` `` | `"code-block"` | 程式碼區塊 |
+| `> text` | `"quote-block"` | 引用區塊 |
+
+#### 行內格式
+
+| Markdown | HTML | 效果 |
+|----------|------|------|
+| `**text**` | `<b>text</b>` | 粗體 |
+| `*text*` | `<i>text</i>` | 斜體 |
+| `~~text~~` | `<s>text</s>` | 刪除線 |
+| `` `text` `` | `<code>text</code>` | 行內程式碼 |
+| `[text](url)` | `<a href="url">text</a>` | 超連結 |
+
+#### 日期格式（ISO 8601，用方括號包起來）
+
+| 格式 | 說明 |
+|------|------|
+| `[YYYY-MM-DD]` | 僅日期 |
+| `[YYYY-MM-DD HH:MM]` | 日期與時間（24 小時制） |
+
+**範例：** `Meeting [2025-12-15 14:30]`
+
+#### 多行文字規則
+
+- 第一行 → 父節點
+- 後續行 → 子節點
+- 單一 `\n` → 合併為空格
+- 雙 `\n\n` → 建立獨立子節點
+
+---
+
+### 更新節點
+
+**POST** `/api/v1/nodes/:id`
+
+只更新傳入的欄位，未傳入的保持不變。
+
+#### 參數
+
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `name` | string | 節點文字 |
+| `note` | string | 備註 |
+| `layoutMode` | string | 顯示模式 |
+
+```bash
+curl -X POST https://workflowy.com/api/v1/nodes/:id \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
+  -d '{"name": "Updated node title"}'
+```
+
+**回應：** `{"status": "ok"}`
+
+---
+
+### 取得節點
+
+**GET** `/api/v1/nodes/:id`
+
+```bash
+curl -X GET https://workflowy.com/api/v1/nodes/:id \
+  -H "Authorization: Bearer <YOUR_API_KEY>"
+```
+
+**回應：**
+
+```json
+{
+  "node": {
+    "id": "6ed4b9ca-256c-bf2e-bd70-d8754237b505",
+    "name": "This is a test outline for API examples",
+    "note": null,
+    "priority": 200,
+    "data": { "layoutMode": "bullets" },
+    "createdAt": 1753120779,
+    "modifiedAt": 1753120850,
+    "completedAt": null
+  }
+}
+```
+
+---
+
+### 列出節點
+
+**GET** `/api/v1/nodes`
+
+回傳指定父節點的子節點，**不保證順序**，需依 `priority` 自行排序。
+
+| 參數 | 說明 |
+|------|------|
+| `parent_id` | 父節點 ID、target key（如 `"home"`, `"inbox"`）或 `"None"`（頂層） |
+
+```bash
+curl -G https://workflowy.com/api/v1/nodes \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
+  -d "parent_id=inbox"
+```
+
+---
+
+### 刪除節點
+
+**DELETE** `/api/v1/nodes/:id`
+
+**⚠️ 無法復原**
+
+```bash
+curl -X DELETE https://workflowy.com/api/v1/nodes/:id \
+  -H "Authorization: Bearer <YOUR_API_KEY>"
+```
+
+**回應：** `{"status": "ok"}`
+
+---
+
+### 移動節點
+
+**POST** `/api/v1/nodes/:id/move`
+
+| 參數 | 說明 |
+|------|------|
+| `parent_id` | 新父節點 ID 或 target key |
+| `position` | `"top"` 或 `"bottom"`（預設 `"top"`） |
+
+```bash
+curl -X POST https://workflowy.com/api/v1/nodes/<NODE_ID>/move \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
+  -d '{"parent_id": "inbox", "position": "top"}'
+```
+
+---
+
+### 完成節點
+
+**POST** `/api/v1/nodes/:id/complete`
+
+```bash
+curl -X POST https://workflowy.com/api/v1/nodes/:id/complete \
+  -H "Authorization: Bearer <YOUR_API_KEY>"
+```
+
+---
+
+### 取消完成
+
+**POST** `/api/v1/nodes/:id/uncomplete`
+
+```bash
+curl -X POST https://workflowy.com/api/v1/nodes/:id/uncomplete \
+  -H "Authorization: Bearer <YOUR_API_KEY>"
+```
+
+---
+
+### 匯出所有節點
+
+**GET** `/api/v1/nodes-export`
+
+回傳所有節點的扁平列表，含 `parent_id` 可還原階層。**不保證順序**，需依 `parent_id` 與 `priority` 自行建立樹狀結構。
+
+**⚠️ 速率限制：每分鐘 1 次請求**
+
+```bash
+curl https://workflowy.com/api/v1/nodes-export \
+  -H "Authorization: Bearer <YOUR_API_KEY>"
+```
+
+**回應範例：**
+
+```json
+{
+  "nodes": [
+    {
+      "id": "ee1ac4c4-775e-1983-ae98-a8eeb92b1aca",
+      "name": "Top Level Item",
+      "note": "This is a note",
+      "parent_id": null,
+      "priority": 100,
+      "completed": false,
+      "data": { "layoutMode": "bullets" },
+      "createdAt": 1753120787,
+      "modifiedAt": 1753120815,
+      "completedAt": null
+    }
+  ]
+}
+```
+
+---
+
+## 目標 (Targets)
+
+Targets 提供快速存取特定節點，包含系統 target（如 `"inbox"`）與自訂快捷鍵（如 `"home"`）。
+
+### API 端點
+
+| 方法 | 路徑 | 說明 |
+|------|------|------|
+| GET | `/api/v1/targets` | 列出所有 targets |
+
+### Target 物件
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `key` | string | 唯一識別碼，如 `"home"`, `"inbox"`, `"today"` |
+| `type` | string | `"shortcut"`（使用者定義）或 `"system"`（系統） |
+| `name` | string \| null | 對應節點名稱，系統 target 未建立節點時為 null |
+
+### 列出 Targets
+
+**GET** `/api/v1/targets`
+
+```bash
+curl https://workflowy.com/api/v1/targets \
+  -H "Authorization: Bearer <YOUR_API_KEY>"
+```
+
+**回應：**
+
+```json
+{
+  "targets": [
+    { "key": "home", "type": "shortcut", "name": "My Home Page" },
+    { "key": "inbox", "type": "system", "name": "Inbox" }
+  ]
+}
+```
+
+---
+
+## 給 AI 的快速參考
+
+- **Base URL:** `https://workflowy.com`
+- **認證:** `Authorization: Bearer <API_KEY>`（Header）
+- **parent_id 特殊值:** `"None"` 表示頂層
+- **常見 target keys:** `"inbox"`, `"home"`
+- **排序:** `priority` 越小越靠前
+- **匯出限制:** `nodes-export` 每分鐘 1 次

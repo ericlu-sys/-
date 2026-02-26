@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <base target="_top" />
+  <style>
+    body { font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; padding: 12px 16px; }
+    label { display: block; font-size: 12px; color: #444; margin-bottom: 4px; }
+    input[type="date"] { padding: 8px; font-size: 14px; width: 100%; box-sizing: border-box; margin-bottom: 12px; }
+    button { padding: 10px 16px; font-size: 14px; background: #1a73e8; color: #fff; border: none; border-radius: 6px; cursor: pointer; width: 100%; }
+    button:hover { background: #1557b0; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    button.copy { background: #34a853; margin-top: 8px; }
+    button.copy:hover { background: #2d8e47; }
+    #msg { font-size: 12px; color: #666; margin-top: 8px; min-height: 1.2em; }
+    #outputArea { display: none; margin-top: 12px; }
+    #outputArea.show { display: block; }
+    #outputLabel { font-size: 12px; color: #444; margin-bottom: 4px; }
+    #copyBtn { margin-bottom: 8px; }
+    #output { width: 100%; height: 320px; max-height: 50vh; box-sizing: border-box; font-size: 12px; font-family: monospace; padding: 8px; border: 1px solid #ccc; border-radius: 6px; overflow: auto; resize: none; }
+  </style>
+</head>
+<body>
+  <label for="day">日期</label>
+  <input type="date" id="day" value="<?= today ?>" />
+  <button id="btn">取得 GitHub 資料</button>
+  <div id="msg"></div>
+  <div id="outputArea">
+    <div id="outputLabel">產出（CSV）</div>
+    <button type="button" id="copyBtn" class="copy">Copy（複製 CSV）</button>
+    <textarea id="output" readonly></textarea>
+  </div>
+  <script>
+    (function() {
+      var dayEl = document.getElementById('day');
+      var btnEl = document.getElementById('btn');
+      var msgEl = document.getElementById('msg');
+      var outputArea = document.getElementById('outputArea');
+      var outputEl = document.getElementById('output');
+      var copyBtn = document.getElementById('copyBtn');
+
+      btnEl.addEventListener('click', function() {
+        var dateStr = dayEl.value;
+        if (!dateStr) {
+          msgEl.textContent = '請選擇日期';
+          return;
+        }
+        btnEl.disabled = true;
+        msgEl.textContent = '取得中…';
+        outputArea.classList.remove('show');
+        outputEl.value = '';
+
+        google.script.run
+          .withSuccessHandler(function(result) {
+            btnEl.disabled = false;
+            if (result && result.ok) {
+              msgEl.textContent = result.message + '（PR ' + (result.prCount || 0) + '、Commit ' + (result.commitCount || 0) + '）';
+              if (result.csv) {
+                outputEl.value = result.csv;
+                outputArea.classList.add('show');
+              }
+            } else {
+              msgEl.textContent = result && result.message ? result.message : '發生錯誤';
+            }
+          })
+          .withFailureHandler(function(err) {
+            btnEl.disabled = false;
+            msgEl.textContent = '錯誤：' + (err && err.message ? err.message : String(err));
+          })
+          .fetchGitHubDataForDate(dateStr);
+      });
+
+      copyBtn.addEventListener('click', function() {
+        var text = outputEl.value;
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(function() {
+          copyBtn.textContent = '已複製';
+          setTimeout(function() { copyBtn.textContent = 'Copy（複製 CSV）'; }, 1500);
+        }).catch(function() {
+          outputEl.select();
+          document.execCommand('copy');
+          copyBtn.textContent = '已選取，請手動複製';
+          setTimeout(function() { copyBtn.textContent = 'Copy（複製 CSV）'; }, 1500);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

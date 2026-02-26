@@ -1,0 +1,20 @@
+{
+  "name": "i18n text value replacer ",
+  "id": "1585209124192273700",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "documentAccess": "dynamic-page",
+  "editorType": [
+    "figma"
+  ],
+  "ui": "ui.html",
+  "networkAccess": {
+    "allowedDomains": [
+      "https://docs.google.com",
+      "https://script.google.com",
+      "https://script.googleusercontent.com"
+    ]
+  }
+}

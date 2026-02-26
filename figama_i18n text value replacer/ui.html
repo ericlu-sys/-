@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    :root { --blue: #18a0fb; --bg: #ffffff; --text: #333; --border: #e6e6e6; }
+    body { font-family: Inter, sans-serif; padding: 0; margin: 0; background: var(--bg); color: var(--text); font-size: 12px; }
+    .tabs { display: flex; border-bottom: 1px solid var(--border); background: #f5f5f5; }
+    .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; color: #888; font-weight: 600; }
+    .tab.active { color: var(--blue); border-bottom: 2px solid var(--blue); background: white; }
+    .content-area { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .panel { display: none; flex-direction: column; gap: 12px; }
+    .panel.active { display: flex; }
+    h3 { margin: 0; font-size: 11px; color: #999; text-transform: uppercase; }
+    input, select, button { padding: 10px; border-radius: 6px; border: 1px solid var(--border); width: 100%; box-sizing: border-box; font-size: 12px; }
+    button { background: var(--blue); color: white; border: none; font-weight: bold; cursor: pointer; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    #fetchBtn { background: #333; }
+    .setting-box { border: 1px solid var(--border); padding: 12px; border-radius: 8px; display: none; flex-direction: column; gap: 12px; background: #fafafa; }
+    .progress-container { display: none; margin-top: 10px; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+    .progress-bar-bg { width: 100%; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; margin-top: 6px; }
+    #progressBar { width: 0%; height: 100%; background: var(--blue); transition: width 0.1s; }
+  </style>
+</head>
+<body>
+  <div class="tabs">
+    <div class="tab active" id="tab-i18n">i18n 翻譯</div>
+    <div class="tab" id="tab-i18n-test">i18n 測試</div>
+    <div class="tab" id="tab-tool">圖層工具</div>
+  </div>
+
+  <div class="content-area">
+    <div id="i18nPanel" class="panel active">
+      <div>
+        <h3>1. Google Sheet API</h3>
+        <input type="text" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbwE7lD2966vmA-JRvrbSG6by24M5PRlua5scRFHSzhzpu24_XBsivsPIauxQLKPjtXwgg/exec" placeholder="貼上 /exec 網址..." style="margin-top:8px;">
+        <button id="fetchBtn" style="margin-top: 8px;">載入資料</button>
+      </div>
+      <div id="settingBox" class="setting-box">
+        <h3>2. 依文字內容替換</h3>
+        <p style="color:#888; font-size:11px;">不依 key／圖層名，只依「圖層目前的文字」在 JSON 裡找到對應條目，再替換成指定語系。</p>
+        <label>替換成語系</label>
+        <select id="localeSelect"></select>
+        <button id="runI18nBtn">執行替換</button>
+        <div id="i18nStatus" style="display:none; margin-top:8px; padding:8px; border-radius:6px; font-size:11px; background:#f5f5f5;"></div>
+      </div>
+    </div>
+
+    <div id="i18nTestPanel" class="panel">
+      <h3>i18n 測試</h3>
+      <p style="color:#888; font-size:11px;">將選取範圍內文字替換為隨機假文，模擬多語系版面。測試完可用 <strong>Ctrl+Z</strong>（Mac：<strong>Cmd+Z</strong>）還原。</p>
+      <button id="runI18nTestBtn">替換為假文</button>
+      <div id="i18nTestStatus" style="display:none; margin-top:8px; padding:8px; border-radius:6px; font-size:11px; background:#f5f5f5;"></div>
+    </div>
+
+    <div id="toolPanel" class="panel">
+      <h3>圖層整理工具</h3>
+      <p style="color:#888; font-size:11px;">將選取範圍內普通文字圖層的名稱改為其內容。<br>(不會更動 Component 內部物件)</p>
+      <button id="syncNameBtn" style="background: #555;">同步內容至圖層名稱</button>
+      <div id="progressContainer" class="progress-container">
+        <div style="display: flex; justify-content: space-between; font-size: 10px; color: #666;">
+          <span id="progressStatus">處理中...</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar-bg"><div id="progressBar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // pathToLocales: { "home.hero.paragraph": { "zh-TW": "...", "vi-VN": "..." }, ... }
+    let pathToLocales = null;
+    let localeList = [];
+    const CACHE_KEY = 'figama-i18n-cache';
+
+    // 從巢狀物件取得所有路徑（只取字串葉節點）
+    function getPathsFromNested(obj, prefix = '') {
+      const out = {};
+      if (!obj || typeof obj !== 'object') return out;
+      for (const key of Object.keys(obj)) {
+        const path = prefix ? prefix + '.' + key : key;
+        const v = obj[key];
+        if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
+          Object.assign(out, getPathsFromNested(v, path));
+        } else if (typeof v === 'string') {
+          out[path] = true;
+        }
+      }
+      return out;
+    }
+
+    function getNested(obj, pathStr) {
+      const parts = pathStr.split('.');
+      let cur = obj;
+      for (const p of parts) {
+        if (cur == null) return undefined;
+        cur = cur[p];
+      }
+      return typeof cur === 'string' ? cur : undefined;
+    }
+
+    // 將 API 的 data: { "zh-TW": {...}, "vi-VN": {...} } 壓平為 path → { locale: value }
+    function buildPathToLocales(dataByLocale) {
+      const locales = Object.keys(dataByLocale);
+      if (locales.length === 0) return null;
+      const first = dataByLocale[locales[0]];
+      const pathKeys = Object.keys(getPathsFromNested(first));
+      const result = {};
+      for (const path of pathKeys) {
+        result[path] = {};
+        for (const loc of locales) {
+          const val = getNested(dataByLocale[loc], path);
+          if (val !== undefined) result[path][loc] = val;
+        }
+      }
+      return result;
+    }
+
+    // 試算表格式：只使用 key 欄當作 path，以及 zh-TW / en-US / vi-VN / th-TH / id-ID 語系欄；不使用 path 欄，避免錯亂
+    // 回傳 { pathToLocales, localeList } 或 null
+    function buildFromSheetRows(rows) {
+      if (!Array.isArray(rows) || rows.length < 2) return null;
+      const headers = rows[0].map(h => String(h || '').trim());
+      const keyCol = headers.indexOf('key');
+      if (keyCol === -1) return null;
+      const localePattern = /^[a-z]{2}-[A-Z]{2}$/;
+      const localeCols = [];
+      headers.forEach((h, i) => {
+        if (localePattern.test(h)) localeCols.push({ name: h, index: i });
+      });
+      if (localeCols.length < 2) return null;
+      const pathToLocales = {};
+      for (let r = 1; r < rows.length; r++) {
+        const row = rows[r];
+        if (!Array.isArray(row)) continue;
+        const path = String(row[keyCol] != null ? row[keyCol] : '').trim();
+        if (!path) continue;
+        pathToLocales[path] = {};
+        localeCols.forEach(({ name, index }) => {
+          const val = row[index];
+          if (val !== undefined && val !== null) pathToLocales[path][name] = String(val);
+        });
+      }
+      if (Object.keys(pathToLocales).length === 0) return null;
+      return {
+        pathToLocales,
+        localeList: localeCols.map(c => c.name)
+      };
+    }
+
+    function trySheetFormat(obj) {
+      if (!obj || typeof obj !== 'object') return null;
+      const skip = ['README', 'summary'];
+      for (const sheetName of Object.keys(obj)) {
+        if (skip.includes(sheetName)) continue;
+        const rows = obj[sheetName];
+        const built = buildFromSheetRows(rows);
+        if (built) return built;
+      }
+      return null;
+    }
+
+    // Tab 切換
+    document.getElementById('tab-i18n').onclick = () => switchTab('i18nPanel', 'tab-i18n');
+    document.getElementById('tab-i18n-test').onclick = () => switchTab('i18nTestPanel', 'tab-i18n-test');
+    document.getElementById('tab-tool').onclick = () => switchTab('toolPanel', 'tab-tool');
+    function switchTab(p, t) {
+      document.querySelectorAll('.panel').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+      document.getElementById(p).classList.add('active');
+      document.getElementById(t).classList.add('active');
+    }
+
+    // 取出「語系 key → 巢狀物件」的來源；排除 summary，支援多一層包裝（如 data.locales）
+    function getLocaleData(obj) {
+      if (!obj || typeof obj !== 'object') return null;
+      const keys = Object.keys(obj);
+      const skipKeys = ['summary', 'duplicates', 'pathConflicts', 'valueDuplicates', 'message'];
+      // 只保留「值為巢狀物件且有多個 path（如 home.hero.paragraph）」的 key，當成語系
+      const localeCandidates = keys.filter(k => {
+        if (skipKeys.includes(k)) return false;
+        const v = obj[k];
+        if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+        const paths = Object.keys(getPathsFromNested(v));
+        return paths.length >= 2 && paths.some(p => p.includes('.'));
+      });
+      if (localeCandidates.length > 0) {
+        const out = {};
+        localeCandidates.forEach(k => { out[k] = obj[k]; });
+        return out;
+      }
+      // 若沒有符合的，可能被包一層：如 { data: { "zh-TW": {...} } }
+      const wrapperKeys = keys.filter(k => !skipKeys.includes(k));
+      for (const k of wrapperKeys) {
+        const inner = obj[k] && typeof obj[k] === 'object' && !Array.isArray(obj[k]) ? obj[k] : null;
+        if (inner) {
+          const found = getLocaleData(inner);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    // 載入資料邏輯：支援 { data: { "zh-TW": {...}, "vi-VN": {...} } 或含 summary 的格式
+    document.getElementById('fetchBtn').onclick = async () => {
+      const url = document.getElementById('scriptUrl').value.trim();
+      if (!url) return alert("請貼上網址");
+
+      const btn = document.getElementById('fetchBtn');
+      btn.disabled = true;
+      btn.innerText = "⏳ 正在載入資料...";
+
+      try {
+        const response = await fetch(url);
+        const json = await response.json();
+        const raw = json.data != null ? json.data : json;
+        const dataByLocale = getLocaleData(raw);
+        if (dataByLocale) {
+          pathToLocales = buildPathToLocales(dataByLocale);
+          localeList = Object.keys(dataByLocale);
+        } else {
+          const sheetBuilt = trySheetFormat(raw);
+          if (sheetBuilt) {
+            pathToLocales = sheetBuilt.pathToLocales;
+            localeList = sheetBuilt.localeList;
+          } else {
+            alert("載入失敗：找不到語系資料。支援 (1) 巢狀格式 data[\"zh-TW\"].home.hero.paragraph 或 (2) 試算表格式，分頁含 key 欄位及 zh-TW、en-US 等語系欄位");
+            return;
+          }
+        }
+        const localeSelect = document.getElementById('localeSelect');
+        localeSelect.innerHTML = '';
+        localeList.forEach(loc => {
+          localeSelect.innerHTML += `<option value="${loc}">${loc}</option>`;
+        });
+        document.getElementById('settingBox').style.display = 'flex';
+        btn.innerText = "✅ 載入成功";
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify({ pathToLocales, localeList })); } catch (e) {}
+        parent.postMessage({ pluginMessage: { type: 'set-pathToLocales', pathToLocales: pathToLocales } }, '*');
+      } catch (err) {
+        alert("載入失敗，請確認 API 網址與權限");
+        btn.innerText = "重試載入";
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    // 執行 i18n：依「目前文字」在 pathToLocales 中找到對應 path，再替換成目標語系
+    let i18nResponseTimeout = null;
+    document.getElementById('runI18nBtn').onclick = () => {
+      if (!pathToLocales || localeList.length === 0) {
+        alert("請先載入資料");
+        return;
+      }
+      const targetLocale = document.getElementById('localeSelect').value;
+      const statusEl = document.getElementById('i18nStatus');
+      const btn = document.getElementById('runI18nBtn');
+      statusEl.style.display = 'block';
+      statusEl.style.background = '#f0f0f0';
+      statusEl.style.color = '#333';
+      statusEl.textContent = '正在執行替換…';
+      btn.disabled = true;
+      if (i18nResponseTimeout) clearTimeout(i18nResponseTimeout);
+      i18nResponseTimeout = setTimeout(() => {
+        i18nResponseTimeout = null;
+        btn.disabled = false;
+        if (statusEl.textContent === '正在執行替換…') {
+          statusEl.textContent = '未收到外掛回覆。請確認已選取圖層（框選文字）後再按一次「執行替換」。';
+          statusEl.style.background = '#fff0f0';
+          statusEl.style.color = '#c00';
+        }
+      }, 4000);
+      parent.postMessage({
+        pluginMessage: { type: 'run-i18n-by-text', targetLocale: targetLocale }
+      }, '*');
+    };
+
+    document.getElementById('runI18nTestBtn').onclick = () => {
+      parent.postMessage({ pluginMessage: { type: 'run-i18n-test' } }, '*');
+    };
+
+    // 執行同步圖層名
+    document.getElementById('syncNameBtn').onclick = () => {
+      parent.postMessage({ pluginMessage: { type: 'sync-names' } }, '*');
+    };
+
+    // 開場從 localStorage 還原上次載入的翻譯表，不用每次重按「載入資料」
+    (function restoreCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (!data.pathToLocales || !data.localeList || data.localeList.length === 0) return;
+        pathToLocales = data.pathToLocales;
+        localeList = data.localeList;
+        const localeSelect = document.getElementById('localeSelect');
+        localeSelect.innerHTML = '';
+        localeList.forEach(loc => { localeSelect.innerHTML += '<option value="' + loc + '">' + loc + '</option>'; });
+        document.getElementById('settingBox').style.display = 'flex';
+        parent.postMessage({ pluginMessage: { type: 'set-pathToLocales', pathToLocales: pathToLocales } }, '*');
+      } catch (e) {}
+    })();
+
+    // 進度條監聽 與 i18n 執行結果（同時讀 event.data.pluginMessage 與 event.data，避免不同環境收不到）
+    window.onmessage = (event) => {
+      const msg = (event.data && event.data.pluginMessage) || event.data;
+      if (!msg || !msg.type) return;
+      if (msg.type === 'i18n-start') {
+        const n = msg.selectionCount ?? 0;
+        const statusEl = document.getElementById('i18nStatus');
+        statusEl.textContent = n === 0 ? '外掛已收到，目前未選取任何物件。' : `外掛已收到，選取 ${n} 個物件，處理中…`;
+        statusEl.style.display = 'block';
+        statusEl.style.background = '#f0f0f0';
+        statusEl.style.color = '#333';
+        return;
+      }
+      if (msg.type === 'i18n-result') {
+        if (i18nResponseTimeout) { clearTimeout(i18nResponseTimeout); i18nResponseTimeout = null; }
+        document.getElementById('runI18nBtn').disabled = false;
+        const statusEl = document.getElementById('i18nStatus');
+        const code = msg.code || 'UNKNOWN';
+        if (code === 'DATA_STORED') return;
+        const text = msg.message || '';
+        const count = msg.count;
+        const notFound = msg.notFoundValues;
+        let display = `[${code}] ${text}`;
+        if (count !== undefined) display += count > 0 ? `（${count} 個）` : '';
+        if (Array.isArray(notFound) && notFound.length > 0) display += '\n找不到：' + notFound.slice(0, 15).join('、') + (notFound.length > 15 ? '…' : '');
+        statusEl.textContent = display;
+        statusEl.style.display = 'block';
+        statusEl.style.whiteSpace = 'pre-wrap';
+        if (code === 'NO_SELECTION' || code === 'MISSING_DATA' || code === 'ZERO_REPLACED' || code === 'NOT_FOUND' || code === 'ERROR') {
+          statusEl.style.background = '#fff0f0';
+          statusEl.style.color = '#c00';
+        } else {
+          statusEl.style.background = '#f0f8f0';
+          statusEl.style.color = '#0a0';
+        }
+        return;
+      }
+      if (msg.type === 'i18n-test-no-selection') {
+        const statusEl = document.getElementById('i18nTestStatus');
+        statusEl.textContent = '請先選取範圍（框選要替換的圖層或 Frame）。';
+        statusEl.style.display = 'block';
+        statusEl.style.background = '#fff0f0';
+        statusEl.style.color = '#c00';
+        return;
+      }
+      if (msg.type === 'i18n-test-done') {
+        const statusEl = document.getElementById('i18nTestStatus');
+        const count = msg.count || 0;
+        statusEl.textContent = count > 0
+          ? '已替換 ' + count + ' 個文字。若要還原請按 Ctrl+Z（Mac：Cmd+Z）。'
+          : '選取範圍內沒有文字圖層。';
+        statusEl.style.display = 'block';
+        statusEl.style.background = count > 0 ? '#f0f8f0' : '#fff0f0';
+        statusEl.style.color = count > 0 ? '#0a0' : '#c00';
+        return;
+      }
+      if (msg.type === 'update-progress') {
+        const { current, total } = msg;
+        const percent = Math.round((current / total) * 100);
+        document.getElementById('progressContainer').style.display = 'block';
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('progressPercent').innerText = percent + '%';
+        document.getElementById('progressStatus').innerText = `正在處理 (${current}/${total})`;
+        if (current >= total) setTimeout(() => document.getElementById('progressContainer').style.display = 'none', 2000);
+      }
+    };
+  </script>
+</body>
+</html>
