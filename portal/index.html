@@ -8,6 +8,61 @@
 <link rel="stylesheet" href="/static/common.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  .priority-flip-card {
+    perspective: 1000px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+    min-height: inherit;
+  }
+  .priority-flip-card:focus-visible {
+    outline: 2px solid #56C7BB;
+    outline-offset: 4px;
+    border-radius: 1.5rem;
+  }
+  .priority-flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+  .priority-flip-card.is-flipped .priority-flip-inner {
+    transform: rotateY(180deg);
+  }
+  .priority-flip-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 1.5rem;
+    background: white;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border: 1px solid #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .priority-flip-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(160deg, #f8fffe 0%, #ffffff 55%);
+    border-color: rgba(86, 199, 187, 0.25);
+  }
+  .priority-flip-back .back-scroll {
+    overflow-y: auto;
+    flex: 1;
+    padding: 1.25rem;
+  }
+  .priority-flip-card:hover .priority-flip-face {
+    border-color: rgba(86, 199, 187, 0.35);
+    box-shadow: 0 8px 24px -8px rgba(86, 199, 187, 0.2);
+  }
+</style>
 </head>
 <body class="p-6 md:p-12">
 <div class="max-w-6xl mx-auto">
@@ -22,6 +77,142 @@
       <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-slate-300"></i>
     </div>
   </div>
+
+  <section class="mb-12" aria-label="重點目標提醒">
+    <div class="flex items-end justify-between gap-4 mb-4">
+      <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest">重點目標</h2>
+      <p class="text-xs text-slate-400 hidden sm:block"><i class="fa-solid fa-hand-pointer mr-1"></i>點擊卡片查看詳細說明</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <!-- P1 -->
+      <button type="button" class="priority-flip-card lg:col-span-2 min-h-[180px]" aria-expanded="false" aria-label="澳德士實習串連，點擊查看詳細說明">
+        <div class="priority-flip-inner min-h-[180px]">
+          <div class="priority-flip-face p-6 md:p-8 justify-between">
+            <div class="flex items-start justify-between gap-4">
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-[#56C7BB]/15 text-[#56C7BB]">P1</span>
+              <i class="fa-solid fa-briefcase text-[#56C7BB]/40 text-2xl"></i>
+            </div>
+            <div>
+              <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-2">澳德士實習串連</h3>
+              <p class="text-sm text-slate-500">企業實習三個月近乎零成本；獨佔澳德士管道</p>
+            </div>
+            <p class="text-[11px] text-[#56C7BB]/70 mt-3"><i class="fa-solid fa-rotate mr-1"></i>點擊翻面</p>
+          </div>
+          <div class="priority-flip-face priority-flip-back">
+            <div class="back-scroll text-sm text-slate-600 leading-relaxed">
+              <p class="text-xs font-bold text-[#56C7BB] uppercase tracking-wider mb-3">說明</p>
+              <p class="text-slate-500">澳德士實習的職缺讓企業有<strong class="text-slate-700">三個月不用成本的勞力</strong>。對企業來說利多、最好說服，但這種職缺沒辦法在 WPORT 公開，是<strong class="text-slate-700">獨佔在澳德士</strong>。</p>
+            </div>
+            <p class="text-[11px] text-slate-400 text-center py-2 border-t border-slate-100 shrink-0"><i class="fa-solid fa-rotate mr-1"></i>再點一下翻回</p>
+          </div>
+        </div>
+      </button>
+
+      <!-- P2 -->
+      <button type="button" class="priority-flip-card min-h-[180px]" aria-expanded="false" aria-label="校園說明會，點擊查看詳細說明">
+        <div class="priority-flip-inner min-h-[180px]">
+          <div class="priority-flip-face p-6 justify-between">
+            <div class="flex items-start justify-between gap-4">
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-500">P2</span>
+              <i class="fa-solid fa-graduation-cap text-slate-300 text-xl"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-800 mb-2">校園說明會</h3>
+              <p class="text-sm text-slate-500">地端活動增註冊效果最好；需先打好學校關係</p>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-3"><i class="fa-solid fa-rotate mr-1"></i>點擊翻面</p>
+          </div>
+          <div class="priority-flip-face priority-flip-back">
+            <div class="back-scroll text-sm text-slate-600 leading-relaxed">
+              <p class="text-xs font-bold text-[#56C7BB] uppercase tracking-wider mb-3">說明</p>
+              <p class="mb-3 text-slate-500">地端活動每次<strong class="text-slate-700">增加註冊效果最好</strong>，但需要先跟學校打好關係。</p>
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">現況</p>
+              <ul class="list-disc pl-4 space-y-1 text-slate-500">
+                <li>長期規劃：開南、銘傳、華梵、醒吾四校說明會</li>
+                <li>目前<strong class="text-slate-700">只有開南</strong>在跑，但合作品質不錯、是最穩定的校園管道</li>
+              </ul>
+            </div>
+            <p class="text-[11px] text-slate-400 text-center py-2 border-t border-slate-100 shrink-0"><i class="fa-solid fa-rotate mr-1"></i>再點一下翻回</p>
+          </div>
+        </div>
+      </button>
+
+      <!-- P3 -->
+      <button type="button" class="priority-flip-card sm:col-span-2 lg:col-span-1 lg:row-span-2 min-h-[220px] lg:min-h-[280px]" aria-expanded="false" aria-label="台大創創新創會談，點擊查看詳細說明">
+        <div class="priority-flip-inner min-h-[220px] lg:min-h-[280px]">
+          <div class="priority-flip-face p-6 justify-between">
+            <div class="flex items-start justify-between gap-4">
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-500">P3</span>
+              <i class="fa-solid fa-lightbulb text-slate-300 text-xl"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-800 mb-2">台大創創・新創會談</h3>
+              <p class="text-sm text-slate-500">每月累積新創名單；可結合獎助金媒合實習</p>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-3"><i class="fa-solid fa-rotate mr-1"></i>點擊翻面</p>
+          </div>
+          <div class="priority-flip-face priority-flip-back">
+            <div class="back-scroll text-sm text-slate-600 leading-relaxed">
+              <p class="text-xs font-bold text-[#56C7BB] uppercase tracking-wider mb-3">說明</p>
+              <p class="mb-3 text-slate-500">可與澳德士結合，<strong class="text-slate-700">提供雇用實習生的獎助金</strong>給前期沒錢的創業團隊。</p>
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">現況</p>
+              <ul class="list-disc pl-4 space-y-1 text-slate-500">
+                <li>每個月一次</li>
+                <li>固定累積公司名單</li>
+                <li>可能產生職缺</li>
+                <li>能夠媒合實習生</li>
+              </ul>
+            </div>
+            <p class="text-[11px] text-slate-400 text-center py-2 border-t border-slate-100 shrink-0"><i class="fa-solid fa-rotate mr-1"></i>再點一下翻回</p>
+          </div>
+        </div>
+      </button>
+
+      <!-- P4 -->
+      <button type="button" class="priority-flip-card min-h-[160px]" aria-expanded="false" aria-label="新創出海東南亞，點擊查看詳細說明">
+        <div class="priority-flip-inner min-h-[160px]">
+          <div class="priority-flip-face p-5 justify-between">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-50 text-slate-400 w-fit">P4</span>
+            <div>
+              <h3 class="text-base font-bold text-slate-700 mb-1">新創出海東南亞</h3>
+              <p class="text-xs text-slate-400">加速器整合；有出海需求再找僑外生</p>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-2"><i class="fa-solid fa-rotate mr-1"></i>點擊翻面</p>
+          </div>
+          <div class="priority-flip-face priority-flip-back">
+            <div class="back-scroll text-xs text-slate-600 leading-relaxed">
+              <p class="text-[10px] font-bold text-[#56C7BB] uppercase tracking-wider mb-2">說明</p>
+              <p class="text-slate-500">跟加速器可以談的合作，讓有出海的新創，或者加速器提供更多服務，亦能與澳德士結合。</p>
+            </div>
+            <p class="text-[10px] text-slate-400 text-center py-1.5 border-t border-slate-100 shrink-0"><i class="fa-solid fa-rotate mr-1"></i>翻回</p>
+          </div>
+        </div>
+      </button>
+
+      <!-- P5 -->
+      <button type="button" class="priority-flip-card min-h-[160px]" aria-expanded="false" aria-label="AI 課程聰電站，點擊查看詳細說明">
+        <div class="priority-flip-inner min-h-[160px]">
+          <div class="priority-flip-face p-5 justify-between">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-50 text-slate-400 w-fit">P5</span>
+            <div>
+              <h3 class="text-base font-bold text-slate-700 mb-1">AI 課程・聰電站</h3>
+              <p class="text-xs text-slate-400">打通 2B 企業顧問市場；帶入 WPORT 會員與履歷</p>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-2"><i class="fa-solid fa-rotate mr-1"></i>點擊翻面</p>
+          </div>
+          <div class="priority-flip-face priority-flip-back">
+            <div class="back-scroll text-xs text-slate-600 leading-relaxed">
+              <p class="text-[10px] font-bold text-[#56C7BB] uppercase tracking-wider mb-2">說明</p>
+              <p class="text-slate-500">藉由 AI 課程去打通 <strong class="text-slate-700">2B 的企業顧問市場</strong>，教育使用者 CLI 為何、Key 為何，偷渡 WPORT 的會員、履歷上架數量。</p>
+            </div>
+            <p class="text-[10px] text-slate-400 text-center py-1.5 border-t border-slate-100 shrink-0"><i class="fa-solid fa-rotate mr-1"></i>翻回</p>
+          </div>
+        </div>
+      </button>
+
+    </div>
+  </section>
 
   <div id="filterTags" class="mb-10 flex flex-wrap gap-3 justify-center md:justify-start"></div>
 

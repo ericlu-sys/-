@@ -98,4 +98,14 @@ function setupSearch() {
     });
 }
 
+function setupPriorityCards() {
+    document.querySelectorAll('.priority-flip-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const flipped = card.classList.toggle('is-flipped');
+            card.setAttribute('aria-expanded', flipped);
+        });
+    });
+}
+
+setupPriorityCards();
 initPortal();
