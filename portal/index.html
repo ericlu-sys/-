@@ -78,11 +78,10 @@
     </div>
   </div>
 
-  <section class="mb-12" aria-label="重點目標提醒">
-    <div class="flex items-end justify-between gap-4 mb-4">
-      <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest">重點目標</h2>
-      <p class="text-xs text-slate-400 hidden sm:block"><i class="fa-solid fa-hand-pointer mr-1"></i>點擊卡片查看詳細說明</p>
-    </div>
+  <div id="filterTags" class="mb-10 flex flex-wrap gap-3 justify-center md:justify-start"></div>
+
+  <section id="goalsSection" class="mb-12" aria-label="公司目標">
+    <p class="text-xs text-slate-400 mb-4 sm:text-right"><i class="fa-solid fa-hand-pointer mr-1"></i>點擊卡片查看詳細說明</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
       <!-- P1 -->
@@ -214,9 +213,7 @@
     </div>
   </section>
 
-  <div id="filterTags" class="mb-10 flex flex-wrap gap-3 justify-center md:justify-start"></div>
-
-  <div id="linksContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+  <div id="linksContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
 
   <div id="emptyState" class="hidden py-32 text-center">
       <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-100 mb-6">

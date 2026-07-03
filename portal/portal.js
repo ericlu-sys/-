@@ -1,4 +1,7 @@
+const GOALS_TAB = '公司目標';
+
 let allLinks = [];
+let currentTag = GOALS_TAB;
 
 async function initPortal() {
     try {
@@ -7,20 +10,31 @@ async function initPortal() {
         
         const rawData = await response.json();
         
-        // 處理複數 Tag 邏輯
         allLinks = rawData.map(item => ({
             ...item,
             tagArray: item.tag ? item.tag.split(',').map(t => t.trim()) : ["未分類"]
         }));
         
         renderTags();
-        renderLinks(allLinks);
+        filterByTag(GOALS_TAB);
         setupSearch();
 
     } catch (error) {
         console.error('載入失敗:', error);
+        showLinksView();
         document.getElementById('linksContainer').innerHTML = `<p class="text-red-500 text-center py-10">無法載入資料: ${error.message}</p>`;
     }
+}
+
+function showGoalsView() {
+    document.getElementById('goalsSection').classList.remove('hidden');
+    document.getElementById('linksContainer').classList.add('hidden');
+    document.getElementById('emptyState').classList.add('hidden');
+}
+
+function showLinksView() {
+    document.getElementById('goalsSection').classList.add('hidden');
+    document.getElementById('linksContainer').classList.remove('hidden');
 }
 
 function renderLinks(links) {
@@ -61,7 +75,7 @@ function renderLinks(links) {
 
 function renderTags() {
     const filterTags = document.getElementById('filterTags');
-    const tags = ["全部"];
+    const tags = [GOALS_TAB, '全部'];
     allLinks.forEach(item => {
         item.tagArray.forEach(t => { if (!tags.includes(t)) tags.push(t); });
     });
@@ -72,24 +86,40 @@ function renderTags() {
             ${tag}
         </button>
     `).join('');
-    
-    // 預設選中全部
-    const firstBtn = filterTags.querySelector('button');
-    if (firstBtn) firstBtn.classList.add('active');
 }
 
-window.filterByTag = (tag) => {
-    const filtered = tag === '全部' ? allLinks : allLinks.filter(l => l.tagArray.includes(tag));
-    renderLinks(filtered);
-    
+function setActiveTag(tag) {
     document.querySelectorAll('.tag-btn').forEach(btn => {
         btn.classList.toggle('active', btn.innerText.trim() === tag);
     });
+}
+
+window.filterByTag = (tag) => {
+    currentTag = tag;
+    document.getElementById('searchInput').value = '';
+    setActiveTag(tag);
+
+    if (tag === GOALS_TAB) {
+        showGoalsView();
+        return;
+    }
+
+    showLinksView();
+    const filtered = tag === '全部' ? allLinks : allLinks.filter(l => l.tagArray.includes(tag));
+    renderLinks(filtered);
 };
 
 function setupSearch() {
     document.getElementById('searchInput').addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
+        const term = e.target.value.toLowerCase().trim();
+
+        if (!term) {
+            filterByTag(currentTag);
+            return;
+        }
+
+        showLinksView();
+        setActiveTag('');
         const filtered = allLinks.filter(l => 
             l.name.toLowerCase().includes(term) || 
             l.tagArray.some(t => t.toLowerCase().includes(term))
