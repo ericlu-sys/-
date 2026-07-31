@@ -1,4 +1,5 @@
 const GOALS_TAB = '公司目標';
+const ONBOARDING_TAB = '新手加入';
 
 let allLinks = [];
 let currentTag = GOALS_TAB;
@@ -26,14 +27,27 @@ async function initPortal() {
     }
 }
 
+function hideSpecialViews() {
+    document.getElementById('goalsSection').classList.add('hidden');
+    document.getElementById('onboardingSection').classList.add('hidden');
+}
+
 function showGoalsView() {
+    hideSpecialViews();
     document.getElementById('goalsSection').classList.remove('hidden');
     document.getElementById('linksContainer').classList.add('hidden');
     document.getElementById('emptyState').classList.add('hidden');
 }
 
+function showOnboardingView() {
+    hideSpecialViews();
+    document.getElementById('onboardingSection').classList.remove('hidden');
+    document.getElementById('linksContainer').classList.add('hidden');
+    document.getElementById('emptyState').classList.add('hidden');
+}
+
 function showLinksView() {
-    document.getElementById('goalsSection').classList.add('hidden');
+    hideSpecialViews();
     document.getElementById('linksContainer').classList.remove('hidden');
 }
 
@@ -75,7 +89,7 @@ function renderLinks(links) {
 
 function renderTags() {
     const filterTags = document.getElementById('filterTags');
-    const tags = [GOALS_TAB, '全部'];
+    const tags = [GOALS_TAB, ONBOARDING_TAB, '全部'];
     allLinks.forEach(item => {
         item.tagArray.forEach(t => { if (!tags.includes(t)) tags.push(t); });
     });
@@ -101,6 +115,11 @@ window.filterByTag = (tag) => {
 
     if (tag === GOALS_TAB) {
         showGoalsView();
+        return;
+    }
+
+    if (tag === ONBOARDING_TAB) {
+        showOnboardingView();
         return;
     }
 
